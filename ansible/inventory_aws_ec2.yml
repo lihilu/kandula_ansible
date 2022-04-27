@@ -1,23 +1,19 @@
 ---
 plugin: aws_ec2
+cache: yes
 regions:
   - us-east-1
 filters:
   tag:purpose:
-     - kandula_project
+    - kandula_project
   instance-state-name: running
 hostnames:
-   - network-interface.association.public-ip
-   - network-interface.addresses.private-ip-address
+  - network-interface.addresses.private-ip-address
 keyed_groups:
-  - prefix: bastion
-    key: tags['bastion']
-  - prefix: consul
-    key: tags['consul']
-  - prefix: consul_agent
-    key: tags['consul_agent']
-#   - prefix: jenkins_server
-#     key: tags['jenkins_server']
-#   - prefix: jenkins_agent
-#     key: tags['jenkins_agent']
+  - prefix: server-name
+    key: tags['Name']
+compose:
+  # Use the private IP address to connect to the host
+  # (note: this does not modify inventory_hostname, which is set via I(hostnames))
+  ansible_host: network-interface.addresses.private-ip-address
 
