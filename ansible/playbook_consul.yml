@@ -6,5 +6,5 @@
   roles:
     - "roles/consul"
   vars_files:
-    - "~/kandula_project/ansible/roles/consul/vars/vars.yml"
+    - "/home/ubuntu/kandula_project/ansible/roles/consul/vars/vars.yml"
 
