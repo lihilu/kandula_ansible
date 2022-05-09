@@ -11,7 +11,7 @@ hostnames:
   - network-interface.addresses.private-ip-address
 keyed_groups:
   - prefix: server-name
-    key: tags['Name']
+    key: tags['consul']
 compose:
   # Use the private IP address to connect to the host
   # (note: this does not modify inventory_hostname, which is set via I(hostnames))

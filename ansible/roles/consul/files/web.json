@@ -1,6 +1,6 @@
 // {
 //     "service": {
-//       "name": "$hostname",
+//       "name": '{{ tags['Name'] }}',
 //       "tags": [
 //         "webserver"
 //       ],

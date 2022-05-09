@@ -1,6 +1,6 @@
 ---
 
-- hosts: server_name_consul_agent, server_name_consul_server
+- hosts: server_name_agent, server_name_server
   remote_user: "ubuntu"
   become: true
   roles:

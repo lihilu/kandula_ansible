@@ -2,7 +2,7 @@
  
   - name: Print a message
     ansible.builtin.debug:
-        msg: "Installing consul server..."
+        msg: "Installing consul {{tags['consul']}}..."
 
   - name: install dependencies on target ec2 instances
     apt:
@@ -74,7 +74,7 @@
       src: consul.config.j2
       dest: "{{ consul_configuration_file_path }}"
       mode: "0644"
-    when: tags['Name'] == 'consul-server'
+    when: tags['consul'] == 'server'
 
   - name: configure consul agent
     become: True
@@ -82,14 +82,15 @@
       src: consul_agent.config.j2
       dest: "{{ consul_configuration_file_path }}"
       mode: "0644"
-    when: tags['Name'] == 'consul-agent'
+    when: tags['consul'] == 'agent'
 
   - name: Create webservice service configuration on agent
-    copy:
+    become: True
+    template:
       src: web.json.j2
       dest: "{{ webservice_configuration_file }}"
       mode: "0644"
-    when: tags['Name'] == 'consul-agent'
+    when: tags['consul'] == 'agent'
 
 
   - name: configure consul service
