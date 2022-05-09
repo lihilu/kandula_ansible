@@ -5,12 +5,15 @@
         "$hostname"
       ],
       "port": 8080,
-      "check": {
-        "args": [
-          "curl",
-          "localhost"
-        ],
-        "interval": "10s"
+      "checks": [
+       {
+        "id": "tcp",
+        "name": "tcp-8080",
+        "tcp": "localhost:8080",
+            "interval": "5s",
+            "timeout": "20s"
+          }
+        ]
       }
     }
   }
