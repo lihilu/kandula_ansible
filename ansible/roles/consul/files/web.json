@@ -1,16 +1,16 @@
-{
-    "service": {
-      "name": "{{ tags['Name'] }}",
-      "tags": [
-        "webserver"
-      ],
-      "port": 22,
-      "check": {
-        "args": [
-          "curl",
-          "localhost"
-        ],
-        "interval": "10s"
-      }
-    }
-  }
+// {
+//     "service": {
+//       "name": "$hostname",
+//       "tags": [
+//         "webserver"
+//       ],
+//       "port": 22,
+//       "check": {
+//         "args": [
+//           "curl",
+//           "localhost"
+//         ],
+//         "interval": "10s"
+//       }
+//     }
+//   }

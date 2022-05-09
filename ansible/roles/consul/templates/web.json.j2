@@ -1,0 +1,16 @@
+{
+    "service": {
+      "name": "$hostname",
+      "tags": [
+        "webserver"
+      ],
+      "port": 22,
+      "check": {
+        "args": [
+          "curl",
+          "localhost"
+        ],
+        "interval": "10s"
+      }
+    }
+  }

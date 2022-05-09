@@ -86,7 +86,7 @@
 
   - name: Create webservice service configuration on agent
     copy:
-      src: web.json
+      src: web.json.j2
       dest: "{{ webservice_configuration_file }}"
       mode: "0644"
     when: tags['Name'] == 'consul-agent'
