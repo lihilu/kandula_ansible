@@ -7,12 +7,3 @@
     - "roles/consul"
   vars_files:
     - "/home/ubuntu/kandula_project/ansible/roles/consul/vars/vars.yml"
-
-
-- hosts: jenkins_agent, jenkins_server
-  remote_user: "ubuntu"
-  become: true
-  roles:
-    - "roles/jenkins"
-  vars_files:
-    - "/home/ubuntu/kandula_project/ansible/roles/jenkins/vars/vars.yml"
