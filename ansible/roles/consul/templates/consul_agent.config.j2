@@ -1,6 +1,7 @@
 {
   "bind_addr": "{{ ansible_ssh_host }}",
   "advertise_addr": "{{ ansible_ssh_host }}",
+  "node_name": "{{tags['Name']}}",
   "data_dir": "/opt/consul",
   "datacenter": "{{ consul_dc_name }}",
   "encrypt": "uDBV4e+LbFW3019YKPxIrg==",
@@ -10,5 +11,5 @@
   "retry_join": ["provider=aws tag_key={{ consul_join_tag_key }} tag_value={{ consul_join_tag_value }}"],
   "enable_script_checks": true,
   "server": false,
-  "retry_interval": "15s"
+  "retry_interval": "10s"
 }
