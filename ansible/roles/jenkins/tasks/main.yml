@@ -1,0 +1,13 @@
+---
+ 
+  - name: Print a message
+    ansible.builtin.debug:
+        msg: "configure jenkins {{tags['jenkins']}}..."
+
+  - name: configure jenkins agent
+    become: True
+    template:
+      src: config.xml.j2
+      dest: "{{ jenkins_agent_configuration_file_path }}"
+      mode: "0644"
+    when: tags['consul'] == 'server'
