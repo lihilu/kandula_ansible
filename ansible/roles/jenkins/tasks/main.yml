@@ -1,0 +1,9 @@
+---
+
+  - name: Create java service health check for jenkins server and agents
+    become: True
+    template:
+      src: jenkins.json.j2
+      dest: "{{ webservice_configuration_file }}"
+      mode: "0644"
+    when: tags['jenkins'] == 'server'
