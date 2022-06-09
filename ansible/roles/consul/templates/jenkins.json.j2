@@ -1,0 +1,24 @@
+{
+    "service": {
+      "name": ""jenkins service",
+      "tags": [
+        "consul_kandula_project_for_jenkins"
+      ],
+      "port": 80,
+      "checks": [
+       {
+        "id": "tcp",
+        "name": "TCP on port 80",
+        "tcp": "localhost:80",
+            "interval": "10s",
+            "timeout": "1s"
+        },
+        {
+        "id": "service",
+        "name": "java service",
+        "args": ["systemctl", "status", "java.service"],
+        "interval": "60s"
+        }
+        ]
+    }
+}
