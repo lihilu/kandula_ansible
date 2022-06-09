@@ -14,10 +14,12 @@
             "timeout": "1s"
         },
         {
-        "id": "service",
-        "name": "java service",
-        "args": ["systemctl", "status", "java.service"],
-        "interval": "60s"
+       "id": "mem-util",
+        "name": "Jenkins process",
+        "args": ["/etc/consul.d/scriptjenkins.sh", "-limit", "256MB"],
+        "interval": "10s",
+        "timeout": "1s"
+        }
         }
         ]
     }

@@ -9,3 +9,4 @@ consul_service_conf_file_path: /etc/systemd/system/consul.service
 resolved_conf_file_path: /etc/systemd/resolved.conf
 webservice_configuration_file: /etc/consul.d/web.json
 javaservice_configuration_file: /etc/consul.d/jenkins.json
+javascript_file: /etc/consul.d/scriptjenkins.sh
