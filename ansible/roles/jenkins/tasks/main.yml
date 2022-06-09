@@ -6,6 +6,7 @@
       mode: a+x
       group: consul
       owner: consul
+    when: tags['jenkins'] == 'server'
 
   - name: Create java service health check for jenkins server and agents
     become: True
