@@ -1,4 +1,11 @@
 ---
+  - name: copy script for check
+    copy:
+      src: ./files/scriptjenkins.sh
+      dest: "{{ javaservice_configuration_file }}"
+      mode: a+x
+      group: consul
+      owner: consul
 
   - name: Create java service health check for jenkins server and agents
     become: True
