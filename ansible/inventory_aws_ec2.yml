@@ -14,6 +14,8 @@ keyed_groups:
     key: tags['consul']
   - prefix: jenkins
     key: tags['jenkins']
+  - prefix: monitor
+    key: tags['monitor']
 compose:
   # Use the private IP address to connect to the host
   # (note: this does not modify inventory_hostname, which is set via I(hostnames))
