@@ -1,0 +1,17 @@
+{
+    "Service": {
+     "Address": "10.0.0.1",
+     "ID": "Vm01_NodeExporter",
+     "Name": "node-exporter",
+     "Port": 9100,
+     "Tags": [
+      "_app=elasticsearch",
+      "_service=node-exporter",
+      "_hostname=Vm01",
+      "_environment=dev",
+      "_cluster=monitor-cls1",
+      "_es_role=master",
+      "_team=storefront"
+     ]
+    }
+   }
