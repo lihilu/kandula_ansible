@@ -45,6 +45,22 @@
   notify:
     - start node_exporter service
 
+- name: Create node exporter service configuration on agent
+  become: True
+  copy:
+    src: consul_node_exporter_service.json
+    dest: "{{ node_exporter_service_configuration_file }}"
+    mode: "0644"
+  when: tags['monitor'] == 'node_exporter'
+
+- name: Create node exporter service configuration on prometheus server
+  become: True
+  copy:
+    src: prometheus_service.json
+    dest: "{{ prometheus_service_file }}"
+    mode: "0644"
+  when: tags['monitor'] == 'graphan_and_prometheus'
+
 - name: get node_exporter service status
   systemd:
     name: node_exporter

@@ -1,2 +1,4 @@
 ---
 node_exporter_ver: "0.18.0"
+node_exporter_service_configuration_file:  /etc/consul.d/consul_node_exporter_service.json
+prometheus_service_file: /etc/consul.d/prometheus_service.json
