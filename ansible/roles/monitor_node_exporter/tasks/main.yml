@@ -48,7 +48,7 @@
 - name: Create node exporter service configuration on agent
   become: True
   template:
-    src: consul_node_exporter_service.json
+    src: consul_node_exporter_service.json.j2
     dest:  /etc/consul.d/node_exporter_service.json
     mode: "0644"
   when: tags['monitor'] == 'node_exporter'
@@ -56,7 +56,7 @@
 - name: Create node exporter service configuration on prometheus server
   become: True
   template:
-    src: prometheus_service.json
+    src: prometheus_service.json.j2
     dest: "{{ prometheus_service_file }}"
     mode: "0644"
   when: tags['monitor'] == 'graphan_and_prometheus'
