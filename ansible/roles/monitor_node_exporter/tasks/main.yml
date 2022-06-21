@@ -47,15 +47,15 @@
 
 - name: Create node exporter service configuration on agent
   become: True
-  copy:
+  template:
     src: consul_node_exporter_service.json
-    dest: "{{ node_exporter_service_configuration_file }}"
+    dest:  /etc/consul.d/node_exporter_service.json
     mode: "0644"
   when: tags['monitor'] == 'node_exporter'
 
 - name: Create node exporter service configuration on prometheus server
   become: True
-  copy:
+  template:
     src: prometheus_service.json
     dest: "{{ prometheus_service_file }}"
     mode: "0644"
