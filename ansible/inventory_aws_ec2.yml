@@ -14,7 +14,7 @@ keyed_groups:
     key: tags['consul']
   - prefix: jenkins
     key: tags['jenkins']
-  - prefix: monitor
+  - prefix: monitor_nodes
     key: tags['monitor']
 compose:
   # Use the private IP address to connect to the host

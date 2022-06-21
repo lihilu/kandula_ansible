@@ -17,7 +17,7 @@
   vars_files:
     - "/home/ubuntu/kandula_project/ansible/roles/jenkins/vars/vars.yml"
 
-- hosts: monitor_node_exporter
+- hosts: monitor_nodes
   remote_user: "ubuntu"
   become: true
   roles:
