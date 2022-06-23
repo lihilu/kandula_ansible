@@ -1,0 +1,8 @@
+- hosts: ansible_server
+  remote_user: "ubuntu"
+  become: true
+  roles:
+    - "roles/k8s"
+  vars_files:
+    - "/home/ubuntu/kandula_project/ansible/roles/k8s/vars/vars.yml"
+

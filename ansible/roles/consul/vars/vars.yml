@@ -1,6 +1,6 @@
 ---
 consul_version: "1.8.5"
-consul_dc_name: "opsschool-Lihi"
+consul_dc_name: "opsschool-lihi"
 consul_join_tag_key: "consul_join"
 consul_join_tag_value: "training"
 dnsmasq_configuration_file: /etc/dnsmasq.d/10-consul
