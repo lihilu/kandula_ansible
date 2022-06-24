@@ -1,5 +1,11 @@
 ---
 
+- name: Copy prometheus yml configuration file
+  copy:
+    src: ./files/prometheus.yml
+    dest: /home/ubuntu/opsschool-monitoring/compose/prometheus/prometheus.yml
+  when: tags['monitor'] == 'graphan_and_prometheus'
+
 - name: download node_exporter
   get_url:
     url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_ver }}/node_exporter-{{ node_exporter_ver }}.linux-amd64.tar.gz
