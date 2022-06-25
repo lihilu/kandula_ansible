@@ -1,7 +1,35 @@
 ---
+
+- name: creating environment - monitoring
+  shell: kubectl create ns monitoring
+  ignore_errors: true
+
+- name: creating environment - grafana
+  shell: kubectl create ns grafana
+  ignore_errors: true
+
+- name: creating environment - consul
+  shell: kubectl create ns consul
+  ignore_errors: true
+
 - name: Add Consul repo
   become: false
   shell: helm repo add hashicorp https://helm.releases.hashicorp.com
+  ignore_errors: true
+
+- name: Add prometheus repo
+  become: false
+  shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  ignore_errors: true
+
+- name: Add grafana repo
+  become: false
+  shell: helm repo add grafana https://grafana.github.io/helm-charts
+  ignore_errors: true
+
+- name: helm repo update
+  become: false
+  shell: helm repo update
   ignore_errors: true
 
 - name: Copy Helm config
@@ -19,12 +47,10 @@
 
 - name: Deploy Consul chart using values-helm config file
   become: false
-  shell: helm upgrade consul hashicorp/consul --namespace consul -f /home/ubuntu/helm_consul_config.yml
+  shell: helm install consul hashicorp/consul --namespace consul -f /home/ubuntu/helm_consul_config.yml
   ignore_errors: true
 
 - name: save consul-dns cluster-ip
-  become: yes
-  become_user: ubuntu
   shell: kubectl get svc -n consul | grep consul-consul | awk '{print $3}'
   register: consul_dns_cluster_ip
 
@@ -43,3 +69,19 @@
   become: false
   shell: kubectl apply -f /home/ubuntu/coreDNS.yml
   ignore_errors: true
+
+- name: Prometheus installation
+  become: false
+  shell: helm install prometheus -n monitoring prometheus-community/kube-prometheus-stack \
+          --set alertmanager.enabled=false \
+          --set grafana.service.type=LoadBalancer
+  ignore_errors: true
+
+- name: GRAFANA installation
+  become: false
+  shell: helm upgrade grafana grafana/grafana --set grafana.enabled=false -n grafana
+  ignore_errors: true
+
+- name: grafana admin password
+  shell: kubectl get secret grafana -o jsonpath="{.data.admin-password}" -n grafana | base64 --decode ; echo
+  register: grafana_secret
