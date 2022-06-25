@@ -13,14 +13,17 @@ client:
   # Consul Cluster Outside K8S leader IP
   join:
     - "provider=aws tag_key={{ consul_join_tag_key }} tag_value={{ consul_join_tag_value }}"
-  grpc: true
   nodeMeta:
     pod-name: ${HOSTNAME}
     host-ip: ${HOST_IP}
-#dns:
+dns:
+  # @type: boolean
+  enabled: true
+syncCatalog:
+  # True if you want to enable the catalog sync. Set to "-" to inherit from
+  # global.enabled.
+  enabled: true
+# connectInject:
 #   enabled: true
-#   clusterIP: '{{ consul_dns_cluster_ip.stdout }}'
-# syncCatalog:
-#   enabled: true
-#   k8sAllowNamespaces: ["*"]
-#   k8sDenyNamespaces: []
+#   default: true
+
