@@ -1,87 +1,108 @@
 ---
 
-- name: creating environment - monitoring
-  shell: kubectl create ns monitoring
-  ignore_errors: true
-
-- name: creating environment - grafana
-  shell: kubectl create ns grafana
-  ignore_errors: true
-
-- name: creating environment - consul
-  shell: kubectl create ns consul
-  ignore_errors: true
-
-- name: Add Consul repo
-  become: false
-  shell: helm repo add hashicorp https://helm.releases.hashicorp.com
-  ignore_errors: true
-
-- name: Add prometheus repo
-  become: false
-  shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  ignore_errors: true
-
-- name: Add grafana repo
-  become: false
-  shell: helm repo add grafana https://grafana.github.io/helm-charts
-  ignore_errors: true
-
-- name: helm repo update
-  become: false
-  shell: helm repo update
-  ignore_errors: true
-
-- name: Copy Helm config
-  become: True
-  template:
-      src: helm_consul_config.yml.j2
-      dest: /home/ubuntu/helm_consul_config.yml
-      mode: "0644"
-  ignore_errors: true
-
-- name: Add Consul gossip encription key
-  become: false
-  shell: kubectl create secret generic consul-gossip-key --from-literal=key=uDBV4e+LbFW3019YKPxIrg== -n consul
-  ignore_errors: true
-
-- name: Deploy Consul chart using values-helm config file
-  become: false
-  shell: helm install consul hashicorp/consul --namespace consul -f /home/ubuntu/helm_consul_config.yml
-  ignore_errors: true
-
-- name: save consul-dns cluster-ip
-  shell: kubectl get svc -n consul | grep consul-consul | awk '{print $3}'
-  register: consul_dns_cluster_ip
-
-- name: echo consul_dns_cluster_ip
-  debug:
-    msg: "consul dns cluster-ip is: {{consul_dns_cluster_ip}}"
-
-- name: Copy CoreDNS config
-  become: True
-  template:
-      src: coreDNS.yml.j2
-      dest: /home/ubuntu/coreDNS.yml
-      mode: "0644"
-
-- name: Configure K8s CoreNDS to use Consul
-  become: false
-  shell: kubectl apply -f /home/ubuntu/coreDNS.yml
-  ignore_errors: true
-
-- name: Prometheus installation
-  become: false
-  shell: helm install prometheus -n monitoring prometheus-community/kube-prometheus-stack \
-          --set alertmanager.enabled=false \
-          --set grafana.service.type=LoadBalancer
-  ignore_errors: true
-
-- name: GRAFANA installation
-  become: false
-  shell: helm upgrade grafana grafana/grafana --set grafana.enabled=false -n grafana
-  ignore_errors: true
-
-- name: grafana admin password
-  shell: kubectl get secret grafana -o jsonpath="{.data.admin-password}" -n grafana | base64 --decode ; echo
-  register: grafana_secret
+    - name: creating environment - monitoring
+      shell: kubectl create ns monitoring
+      ignore_errors: true
+    
+    - name: creating environment - grafana
+      shell: kubectl create ns grafana
+      ignore_errors: true
+    
+    - name: creating environment - consul
+      shell: kubectl create ns consul
+      ignore_errors: true
+    
+    - name: Add Consul repo
+      become: false
+      shell: helm repo add hashicorp https://helm.releases.hashicorp.com
+      ignore_errors: true
+    
+    - name: Add prometheus repo
+      become: false
+      shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      ignore_errors: true
+    
+    - name: Add grafana repo
+      become: false
+      shell: helm repo add grafana https://grafana.github.io/helm-charts
+      ignore_errors: true
+    
+    - name: helm repo update
+      become: false
+      shell: helm repo update
+      ignore_errors: true
+    
+    - name: Copy Helm config
+      become: True
+      template:
+          src: helm_consul_config.yml.j2
+          dest: /home/ubuntu/helm_consul_config.yml
+          mode: "0644"
+      ignore_errors: true
+    
+    - name: Add Consul gossip encription key
+      become: false
+      shell: kubectl create secret generic consul-gossip-key --from-literal=key=uDBV4e+LbFW3019YKPxIrg== -n consul
+      ignore_errors: true
+    
+    - name: Deploy Consul chart using values-helm config file
+      become: false
+      shell: helm install consul hashicorp/consul --namespace consul -f /home/ubuntu/helm_consul_config.yml
+      ignore_errors: true
+    
+    - name: save consul-dns cluster-ip
+      shell: kubectl get svc -n consul | grep consul-consul | awk '{print $3}'
+      register: consul_dns_cluster_ip
+    
+    - name: echo consul_dns_cluster_ip
+      debug:
+        msg: "consul dns cluster-ip is: {{consul_dns_cluster_ip}}"
+    
+    - name: Copy CoreDNS config
+      become: True
+      template:
+          src: coreDNS.yml.j2
+          dest: /home/ubuntu/coreDNS.yml
+          mode: "0644"
+    
+    - name: Configure K8s CoreNDS to use Consul
+      become: false
+      shell: kubectl apply -f /home/ubuntu/coreDNS.yml
+      ignore_errors: true
+    
+    - name: Prometheus installation
+      become: false
+      shell: helm install prometheus -n monitoring prometheus-community/kube-prometheus-stack \
+              --set alertmanager.enabled=false \
+              --set grafana.service.type=LoadBalancer
+      ignore_errors: true
+    
+    - name: GRAFANA installation
+      become: false
+      shell: helm install grafana grafana/grafana --set grafana.enabled=false -n grafana
+      ignore_errors: true
+    
+    - name: copy node_exporter service manifast to temp folder
+      copy:
+          src: ./files/monitor_node_exporter_service.yml
+          dest: /home/ubuntu/monitor_node_exporter_service.yml
+          mode: "0644"
+          group: consul
+          owner: consul
+    
+    - name: deploy node_exporter service manifast file
+      shell: kubectl apply -f /home/ubuntu/monitor_node_exporter_service.yml
+      ignore_errors: true
+    
+    - name: copy node_exporter deamonset manifast to temp folder
+      copy:
+          src: ./files/monitor_node_exporter_service.yml
+          dest: /home/ubuntu/monitor_node_exporter_deamonset.yml
+          mode: "0644"
+          group: consul
+          owner: consul
+    
+    - name: deploy node_exporter deamonset manifast file
+      shell: kubectl apply -f  /home/ubuntu/monitor_node_exporter_deamonset.yml
+      ignore_errors: true
+    
