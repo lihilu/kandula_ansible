@@ -46,3 +46,27 @@ scrape_configs:
         target_label: "__address__"
         regex: "(.*):(.*)"
         replacement: "$1:9100"
+
+ - job_name: "node_exporter_kubernetes"
+   consul_sd_configs:
+      - server: "localhost:8500"
+        services:
+          - "prom-prometheus-node-exporter-default"
+   relabel_configs:
+      - source_labels: ["__meta_consul_service_id"]
+        replacement: "$1"
+        target_label: pod
+
+ - job_name: "consul_metrics"
+   consul_sd_configs:
+      - server: "localhost:8500"
+        services:
+          - "consul"
+   relabel_configs:
+      - source_labels: ["__address__"]
+        target_label: "__address__"
+        regex: "(.*):(.*)"
+        replacement: "$1:8500"
+   metrics_path: "/v1/agent/metrics"
+   params:
+      format: ["prometheus"]

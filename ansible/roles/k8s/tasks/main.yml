@@ -106,3 +106,15 @@
       shell: kubectl apply -f  /home/ubuntu/monitor_node_exporter_deamonset.yml
       ignore_errors: true
     
+
+    - name: copy cluster role manifast to temp folder
+      copy:
+          src: ./files/clusterrol.yml
+          dest: /home/ubuntu/clusterrol.yml
+          mode: "0644"
+          group: consul
+          owner: consul
+    
+    - name: deploy cluster role manifast file
+      shell: kubectl apply -f  /home/ubuntu/clusterrol.yml
+      ignore_errors: true
