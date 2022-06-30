@@ -1,0 +1,71 @@
+---
+
+- name: update apt python3 pip install
+  apt:
+    name: 
+    - python3-pip
+    state: latest
+    update_cache: yes
+
+- name: Upgrade pip3 package
+  pip: 
+    name: pip
+    extra_args: --upgrade
+    state: latest
+
+- name: install psycopg2 package
+  pip:
+    name:
+      - psycopg2-binary==2.9.3
+
+- name: Copy .sql script
+  copy:
+    src: create_kandula_db.sql
+    dest: /home/ubuntu/create_kandula_db.sql
+    owner: ubuntu
+    group: ubuntu
+    mode: '0775'
+  when: tags['name'] == 'ansible-server'
+
+- name: run sql script on rds db
+  community.postgresql.postgresql_script:
+    db: "{{ db_name }}"
+    login_host: "{{ db_host}}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    path: /home/ubuntu/create_kandula_db.sql
+    encoding: UTF-8
+  when: tags['name'] == 'ansible-server'
+
+- name: Create db user
+  postgresql_user:
+    state: present
+    name: "{{ db_newuser }}"
+    password: "{{ db_newpassword }}"
+  become: true
+  become_user: postgres
+  when: tags['name'] == 'ansible-server'
+
+- name: Grant db user access to app db
+  postgresql_privs:
+    type: database
+    database: "{{ db_name }}"
+    roles: "{{ db_user }}"
+    grant_option: no
+    privs: all
+  become: true
+  become_user: postgres
+  when: tags['name'] == 'ansible-server'
+
+- name: "Allow md5 connection for the db user"
+  postgresql_pg_hba:
+    dest: "~/data/pg_hba.conf"
+    contype: host
+    databases: all
+    method: md5
+    users: "{{ db_user }}"
+    create: true
+  become: true
+  become_user: postgres
+  notify: restart postgres
+  when: tags['name'] == 'ansible-server'
