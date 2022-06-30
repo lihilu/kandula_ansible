@@ -49,7 +49,7 @@ scrape_configs:
 
  - job_name: "node_exporter_kubernetes"
    consul_sd_configs:
-      - server: "localhost:8500"
+      - server: "finalproject.ops.club:8500"
         services:
           - "prom-prometheus-node-exporter-default"
    relabel_configs:
@@ -59,9 +59,9 @@ scrape_configs:
 
  - job_name: "consul_metrics"
    consul_sd_configs:
-      - server: "localhost:8500"
+      - server: "finalproject.ops.club:8500"
         services:
-          - "consul"
+          - "consul-cinsul-dns-consul"
    relabel_configs:
       - source_labels: ["__address__"]
         target_label: "__address__"
