@@ -1,4 +1,7 @@
 ---
+- name: Print a message
+  ansible.builtin.debug:
+     msg: "Installing postgres {{tags['Name']}}..."
 
 - name: update apt python3 pip install
   apt:
@@ -13,10 +16,13 @@
     extra_args: --upgrade
     state: latest
 
-- name: install psycopg2 package
-  pip:
+- name: Install required packages
+  apt:
     name:
-      - psycopg2-binary==2.9.3
+      - wget
+      - python3-psycopg2
+      - acl
+    state: latest
 
 - name: Copy .sql script
   copy:
@@ -24,48 +30,85 @@
     dest: /home/ubuntu/create_kandula_db.sql
     owner: ubuntu
     group: ubuntu
-    mode: '0775'
-  when: tags['name'] == 'ansible-server'
+  when: tags['Name'] == 'ansible-server'
 
+- name: install postgres client
+  apt:  
+    name:
+      - postgresql-client
+  notify:
+    - Enable Postgresql
+
+- name: Ensure PostgreSQL is listening on *
+  lineinfile:
+    dest: /etc/postgresql/14/main/postgresql.conf
+    regexp: '^listen_addresses\s*='
+    line: "listen_addresses='*'"
+    state: present
+  notify: Restart Postgresql
+
+- name: Add new configuration to "pg_hba.conf"
+  blockinfile:
+    dest: /etc/postgresql/14/main/pg_hba.conf
+    block: |
+      host    all             all             0.0.0.0/0                md5
+      host    all             all             ::/0                     md5
+  notify: Restart Postgresql
+
+- name: Change peer identification to trust
+  shell: /bin/sed -i '/^local/s/peer/trust/' /etc/postgresql/14/main/pg_hba.conf
+  args:
+    warn: no
+  notify: Restart Postgresql
+
+- name: register rds instance ip to env veribale
+  shell: dig +short kanduladb.cgtlguhuqzoq.us-east-1.rds.amazonaws.com
+  register: digshort
+
+- name: Print a message
+  ansible.builtin.debug:
+     msg: "dig {{digshort.stdout_lines[0]}}..."
+ 
 - name: run sql script on rds db
   community.postgresql.postgresql_script:
     db: "{{ db_name }}"
-    login_host: "{{ db_host}}"
+    login_host: "{{ digshort.stdout_lines[0]}}"
     login_user: "{{ db_user }}"
     login_password: "{{ db_password }}"
     path: /home/ubuntu/create_kandula_db.sql
     encoding: UTF-8
-  when: tags['name'] == 'ansible-server'
+  when: tags['Name'] == 'ansible-server'
 
-- name: Create db user
-  postgresql_user:
-    state: present
-    name: "{{ db_newuser }}"
-    password: "{{ db_newpassword }}"
-  become: true
-  become_user: postgres
-  when: tags['name'] == 'ansible-server'
+# - name: Create db user
+#   postgresql_user:
+#     state: present
+#     name: "{{ db_newuser }}"
+#     password: "{{ db_newpassword }}"
+#   become: true
+#   when: tags['Name'] == 'ansible-server'
 
-- name: Grant db user access to app db
-  postgresql_privs:
-    type: database
-    database: "{{ db_name }}"
-    roles: "{{ db_user }}"
-    grant_option: no
-    privs: all
-  become: true
-  become_user: postgres
-  when: tags['name'] == 'ansible-server'
+# - name: Grant db user access to app db
+#   postgresql_privs:
+#     type: database
+#     db: "{{ db_name }}"
+#     roles: "{{ db_newuser }}"
+#     grant_option: no
+#     privs: all
+#     host: "{{ digshort.stdout_lines[0]}}"
+#     login_password: "{{ db_password}}"
+#   become: true
+#   become_user: "{{db_user}}"
+#   when: tags['Name'] == 'ansible-server'
 
-- name: "Allow md5 connection for the db user"
-  postgresql_pg_hba:
-    dest: "~/data/pg_hba.conf"
-    contype: host
-    databases: all
-    method: md5
-    users: "{{ db_user }}"
-    create: true
-  become: true
-  become_user: postgres
-  notify: restart postgres
-  when: tags['name'] == 'ansible-server'
+# - name: "Allow md5 connection for the db user"
+#   postgresql_pg_hba:
+#     dest: "~/data/pg_hba.conf"
+#     contype: host
+#     databases: all
+#     method: md5
+#     users: "{{ db_user }}"
+#     create: true
+#   become: true
+#   become_user: "{{db_newuser}}"
+#   notify: restart postgres
+#   when: tags['Name'] == 'ansible-server'
