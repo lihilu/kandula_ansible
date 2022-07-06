@@ -32,10 +32,19 @@
     group: ubuntu
   when: tags['Name'] == 'ansible-server'
 
-- name: install postgres client
-  apt:  
-    name:
-      - postgresql-client
+- name: Set up Postgres 14 repo
+  shell: |
+    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+  args:
+    warn: no
+  notify:
+    - Enable Postgresql
+
+- name: Install postgresql
+  apt:
+    name: postgresql-14
+    update_cache: yes
   notify:
     - Enable Postgresql
 
