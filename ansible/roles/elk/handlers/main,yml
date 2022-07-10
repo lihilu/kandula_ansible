@@ -1,0 +1,13 @@
+handlers:
+  - name: start Elasticsearch
+    systemd:
+      name: elasticsearch
+      state: started
+
+  - name: enable Elasticsearch
+    systemd:
+      name: elasticsearch
+      enabled: yes
+
+  - name: restart logstash
+    service: name=logstash state=restarted

@@ -18,6 +18,8 @@ keyed_groups:
     key: tags['monitor']
   - prefix: ansible
     key: tags['ansible']
+  - prefix: elk_server
+    key: tags['elk_server']
 compose:
   # Use the private IP address to connect to the host
   # (note: this does not modify inventory_hostname, which is set via I(hostnames))
