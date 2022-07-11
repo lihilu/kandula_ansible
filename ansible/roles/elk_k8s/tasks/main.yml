@@ -37,8 +37,9 @@
     dest: /home/ubuntu/filebeat_k8s_config.yml
 
 - name: Deploy filebeat on K8s
+  become: true
+  become_user: root
   shell: "kubectl apply -f filebeat_k8s_config.yml"
-  become: false
   ignore_errors: true
 
 - name: Start Filebeat
