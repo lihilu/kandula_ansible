@@ -1,9 +1,1 @@
----
-db_user: "adminkandula"
-db_password: "Lihilihi123"
-db_name: "kanduladb"
-db_port: 5432 
-db_host: "kanduladb.cgtlguhuqzoq.us-east-1.rds.amazonaws.com"
-db_newuser: "kandulawebuser"
-db_newpassword: "passw0rd"
-rds_role_superuser: "rds_superuser"
+lililili
