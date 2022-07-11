@@ -1,0 +1,8 @@
+  - hosts: elk_server_elk_true, ansible_server
+    remote_user: "ubuntu"
+    become: true
+    roles:
+      - "roles/elk"
+    vars_files:
+      - "/home/ubuntu/kandula_project/ansible/roles/elk/vars/vars.yml"
+
