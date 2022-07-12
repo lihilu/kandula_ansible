@@ -13,10 +13,12 @@
   get_url:
     url: https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-amd64.deb
     dest: /home/ubuntu/elasticsearch-oss-7.10.2-amd64.deb
+ # when: tags['elk_server'] == 'elk_true'
 
 - name: install elasticsearch from deb file
   apt:
     deb: /home/ubuntu/elasticsearch-oss-7.10.2-amd64.deb
+  when: tags['elk_server'] == 'elk_true'
 
 - name: copy elasticsearch_config.yml
   copy:
@@ -25,11 +27,13 @@
   notify:
     - start Elasticsearch
     - enable Elasticsearch
+  when: tags['elk_server'] == 'elk_true'
 
 - name: download kibana
   get_url:
     url: https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
     dest: /tmp/kibana-oss-7.10.2-amd64.deb
+  when: tags['elk_server'] == 'elk_true'
 
 - name: install kibana
   apt:
@@ -39,6 +43,7 @@
 - name: Configure Server hosts
   shell: |
     echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml    
+  when: tags['elk_server'] == 'elk_true'
 
 - name: start kibana
   systemd:
@@ -46,6 +51,7 @@
     name: kibana
     enabled: yes
     state: restarted
+  when: tags['elk_server'] == 'elk_true'
 
 - name: copy elk consul service file
   copy:
@@ -53,55 +59,54 @@
     dest: /etc/consul.d/
     group: consul
     owner: consul
+  when: tags['elk_server'] == 'elk_true'
 
+- name: Ensure required dependencies are present
+  apt:
+    name:
+      - apt-transport-https
+      - gnupg2
+      - wget
+    state: present
+  when: tags['elk_server'] == 'elk_true'
 
+- name: Download Filebeat
+  get_url:
+    url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
+    dest: /home/ubuntu/filebeat-oss-7.11.0-amd64.deb
+  when: tags['elk_server'] == 'elk_true'
 
-# - name: installed required dependencies for Logstash
-#   apt:
-#     name:
-#       - apt-transport-https
-#       - gnupg2
-#       - default-jre
-#     state: present
+- name: Install Filebeat
+  apt:
+    deb: /home/ubuntu/filebeat-oss-7.11.0-amd64.deb
+  when: tags['elk_server'] == 'elk_true'
 
-# - name: Download Logstash
-#   get_url:
-#     url: https://artifacts.elastic.co/downloads/logstash/logstash-oss-{{ logstash_version }}-amd64.deb
-#     dest: /tmp/logstash-oss-{{ logstash_version }}-amd64.deb
+- name: Copy Filebeat health check file
+  copy:
+    src: filebeat_health_check.sh
+    dest: /home/ubuntu/filebeat_health_check.sh
+    mode: a+x
+  when: tags['elk_server'] == 'elk_true'
 
-# - name: Install Logstash
-#   apt:
-#     deb: /tmp/logstash-oss-{{ logstash_version }}-amd64.deb
+- name: Copy Filebeat config file
+  copy:
+    src: ./files/filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+  when: tags['elk_server'] == 'elk_true'
 
-# - name: Copy Logstash config file
-#   copy:
-#     src: logstash_alb.conf
-#     dest: /etc/logstash/conf.d/logstash_alb.conf
+- name: Copy Filebeat K8s config file
+  copy:
+    src: ./files/filebeat_k8s_config.yml
+    dest: /home/ubuntu/filebeat_k8s_config.yml
+  delegate_to: localhost
 
-# - name: Add Logstash user
-#   user:
-#     name: logstash
-#     group: logstash
-#     groups: adm
-#   notify: restart logstash
+- name: Deploy filebeat on K8s
+  shell: kubectl apply -f /home/ubuntu/filebeat_k8s_config.yml
+  ignore_errors: true
+  delegate_to: localhost
 
-# - name: Get Logstash list of installed plugins
-#   command: >
-#     ./bin/logstash-plugin list
-#     chdir={{ logstash_dir }}
-#   register: logstash_plugins_list
-#   changed_when: false
-
-# - name: Install configured plugins.
-#   command: >
-#     ./bin/logstash-plugin install {{ item }}
-#     chdir={{ logstash_dir }}
-#   with_items: "{{ logstash_install_plugins }}"
-#   when: "item not in logstash_plugins_list.stdout"
-#   notify: restart logstash
-
-# - name: Ensure Logstash is started and enabled on boot.
-#   service:
-#     name: logstash
-#     state: started
-#     enabled: "{{ logstash_enabled_on_boot }}"  
+- name: Start Filebeat
+  ansible.builtin.service:
+    name: filebeat
+    state: started
+  when: tags['elk_server'] == 'elk_true'
