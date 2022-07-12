@@ -10,6 +10,7 @@
       - gnupg2
       - wget
     state: present
+  when: tags['elk_server'] == 'elk_true'
 
 - name: Download Filebeat
   get_url:
@@ -19,12 +20,14 @@
 - name: Install Filebeat
   apt:
     deb: /home/ubuntu/filebeat-oss-7.11.0-amd64.deb
+  when: tags['elk_server'] == 'elk_true'
 
 - name: Copy Filebeat health check file
   copy:
     src: filebeat_health_check.sh
     dest: /home/ubuntu/filebeat_health_check.sh
     mode: a+x
+  when: tags['elk_server'] == 'elk_true'
 
 - name: Copy Filebeat config file
   copy:
@@ -37,12 +40,11 @@
     dest: /home/ubuntu/filebeat_k8s_config.yml
 
 - name: Deploy filebeat on K8s
-  become: true
-  become_user: root
-  shell: "kubectl apply -f filebeat_k8s_config.yml"
+  shell: kubectl apply -f roles/elk_k8s/files/filebeat_k8s_config.yml
   ignore_errors: true
 
 - name: Start Filebeat
   ansible.builtin.service:
     name: filebeat
     state: started
+  when: tags['elk_server'] == 'elk_true'
