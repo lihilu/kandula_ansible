@@ -61,3 +61,13 @@ scrape_configs:
         target_label: "kandula-cluster-ip"
         regex: "kandula-cluster-ip(.*)"
         action: keep
+
+ - job_name: "node_exporter_kubernetes"
+   consul_sd_configs:
+      - server: "finalproject.ops.club:8500"
+        services:
+          - "prom-prometheus-node-exporter-default"
+   relabel_configs:
+      - source_labels: ["__meta_consul_service_id"]
+        replacement: "$1"
+        target_label: pod
