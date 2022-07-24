@@ -48,36 +48,16 @@ scrape_configs:
          regex: "9100"
          action: 'keep'
          target_label: '__meta_consul_service_port'
-#    relabel_configs:
-#       - source_labels: [__meta_consul_tags]
-#         action: keep
-#       - source_labels: [__meta_consul_service]
-#         target_label: job
-#       - source_labels: ["__address__"]
-#         target_label: "__address__"
-#         regex: "(.*):(.*)"
-#         replacement: "$1:9100"
 
-#  - job_name: "node_exporter_kubernetes"
-#    consul_sd_configs:
-#       - server: "finalproject.ops.club:8500"
-#         services:
-#           - "prom-prometheus-node-exporter-default"
-#    relabel_configs:
-#       - source_labels: ["__meta_consul_service_id"]
-#         replacement: "$1"
-#         target_label: pod
-
-#  - job_name: "consul_metrics"
-#    consul_sd_configs:
-#       - server: "finalproject.ops.club:8500"
-#         services:
-#           - "consul-cinsul-dns-consul"
-#    relabel_configs:
-#       - source_labels: ["__address__"]
-#         target_label: "__address__"
-#         regex: "(.*):(.*)"
-#         replacement: "$1:8500"
-#    metrics_path: "/v1/agent/metrics"
-#    params:
-#       format: ["prometheus"]
+ - job_name: 'kandula_metrics'
+   kubernetes_sd_configs:
+      - role: endpoints
+   relabel_configs:
+      - source_labels: [ '_address_' ]
+        target_label: '_address_'
+        regex: "(.):(.)"
+        replacement: "$1:5000"
+      - source_labels: [ "__meta_kubernetes_service_name" ]
+        target_label: "kandula-cluster-ip"
+        regex: "kandula-cluster-ip(.*)"
+        action: keep
