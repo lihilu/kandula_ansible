@@ -30,9 +30,13 @@ scrape_configs:
       - server: 'finalproject.ops.club:8500'
       - datacenter: 'opsschool-lihi'
    relabel_configs:
-      - source_labels: ["__address__"]
-        target_label: "__address__"
-        regex: "(.*):(.*)"
-        replacement: "$1:9100"
-      - source_labels: ["__meta_consul_node"]
-        target_label: "instance"
+       - source_labels: ['_address_']
+         target_label: '_address_'
+         regex: "(.):(.)"
+         replacement: "$1:9100"
+       - source_labels: ['__meta_consul_node']
+         target_label: 'instance'
+       - source_labels: [ '__meta_consul_service_port' ]
+         regex: "9100"
+         action: 'keep'
+         target_label: '__meta_consul_service_port'

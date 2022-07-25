@@ -32,12 +32,21 @@
       shell: helm repo update
       ignore_errors: true
     
-    - name: Copy Helm config
+    - name: Copy Helm config - consul
       become: True
       template:
           src: helm_consul_config.yml.j2
           dest: /home/ubuntu/helm_consul_config.yml
           mode: "0644"
+      ignore_errors: true
+    
+    - name: Copy Helm config - prometheus
+      copy:
+        src: ./files/helm_pro_config.yml
+        dest: /home/ubuntu/helm_pro_config.yml
+        mode: "0644"
+        group: consul
+        owner: consul
       ignore_errors: true
     
     - name: Add Consul gossip encription key
@@ -70,11 +79,9 @@
       shell: kubectl apply -f /home/ubuntu/coreDNS.yml
       ignore_errors: true
     
-    - name: Prometheus installation
+    - name: Prometheus installation with condig file
       become: false
-      shell: helm install prometheus -n monitoring prometheus-community/kube-prometheus-stack \
-              --set alertmanager.enabled=false \
-              --set grafana.service.type=LoadBalancer
+      shell: helm install prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/helm_pro_config.yml
       ignore_errors: true
     
     - name: GRAFANA installation
