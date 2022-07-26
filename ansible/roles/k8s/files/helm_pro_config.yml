@@ -2640,9 +2640,9 @@ prometheus:
             target_label: '_address_'
             regex: "(.):(.)"
             replacement: "$1:5000"
-          - source_labels: [ "__meta_kubernetes_namespace" ]
-            target_label: "kandula-cluster-ip"
-            regex: "kandula-cluster-ip(.*)"
+          - source_labels: [ "__meta_kubernetes_service_name" ]
+            target_label: "kandula-service"
+            regex: "kandula-service(.*)"
             action: keep
 
     # - job_name: kube-etcd
