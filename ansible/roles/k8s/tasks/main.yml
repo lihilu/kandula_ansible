@@ -49,6 +49,15 @@
         owner: consul
       ignore_errors: true
     
+    - name: Copy Helm config - grafana
+      copy:
+        src: ./files/helm_grafana_config.yml
+        dest: /home/ubuntu/helm_grafana_config.yml
+        mode: "0644"
+        group: consul
+        owner: consul
+      ignore_errors: true
+
     - name: Add Consul gossip encription key
       become: false
       shell: kubectl create secret generic consul-gossip-key --from-literal=key=uDBV4e+LbFW3019YKPxIrg== -n consul
@@ -81,12 +90,12 @@
     
     - name: Prometheus installation with condig file
       become: false
-      shell: helm install prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/helm_pro_config.yml
+      shell: helm upgrade prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/helm_pro_config.yml
       ignore_errors: true
     
     - name: GRAFANA installation
       become: false
-      shell: helm install grafana grafana/grafana --set grafana.enabled=false -n grafana
+      shell: helm upgrade grafana grafana/grafana -n grafana -f /home/ubuntu/helm_grafana_config.yml
       ignore_errors: true
     
     - name: copy node_exporter service manifast to temp folder
