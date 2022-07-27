@@ -90,12 +90,12 @@
     
     - name: Prometheus installation with condig file
       become: false
-      shell: helm upgrade prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/helm_pro_config.yml
+      shell: helm install prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/helm_pro_config.yml
       ignore_errors: true
     
     - name: GRAFANA installation
       become: false
-      shell: helm upgrade grafana grafana/grafana -n grafana -f /home/ubuntu/helm_grafana_config.yml
+      shell: helm install grafana grafana/grafana -n grafana -f /home/ubuntu/helm_grafana_config.yml
       ignore_errors: true
     
     - name: copy node_exporter service manifast to temp folder

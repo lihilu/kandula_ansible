@@ -1,0 +1,9 @@
+---
+
+- hosts: server_name_agent, server_name_server, ansible_server 
+  remote_user: "ubuntu"
+  become: true
+  roles:
+    - "roles/filebeat"
+  vars_files:
+    - "/home/ubuntu/kandula_project/ansible/roles/filebeat/vars/vars.yml"

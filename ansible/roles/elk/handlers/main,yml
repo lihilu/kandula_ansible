@@ -1,10 +1,10 @@
-handlers:
-  - name: start Elasticsearch
+---
+  - name: start elasticsearch
     systemd:
       name: elasticsearch
       state: started
 
-  - name: enable Elasticsearch
+  - name: enable elasticsearch
     systemd:
       name: elasticsearch
       enabled: yes
