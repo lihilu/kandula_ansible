@@ -40,4 +40,5 @@
 - name: Start Filebeat
   ansible.builtin.service:
     name: filebeat
-    state: started
+    state: restarted
+    enabled: yes

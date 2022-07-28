@@ -1,10 +1,16 @@
 ---
- 
+
 - name: Print a message
   ansible.builtin.debug:
     msg: "Installing elk on {{tags['Name']}}..."
 
-- name: Upgrade all packages on servers
+- name: changed hostname to elk
+  become: true
+  ansible.builtin.hostname:
+    name: elk
+  ignore_errors: true
+
+- name: Upgrade all packages on server
   apt:
     upgrade: dist
     force_apt_get: yes
@@ -20,14 +26,27 @@
     deb: /home/ubuntu/elasticsearch-oss-7.10.2-amd64.deb
   when: tags['Name'] == 'elk'
 
+- name: change owner elastick folder on remote
+  become: true
+  shell: |
+    sudo chown -R ubuntu /etc/elasticsearch/*
+  ignore_errors: true
+
 - name: copy elasticsearch.yml
+  become: true
   copy:
     src: ./files/elasticsearch.yml
     dest: /etc/elasticsearch/
-  notify:
-    - start elasticsearch
-    - enable elasticsearch
-  when: tags['Name'] == 'elk'
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: start elasticsearch
+  systemd:
+    daemon_reload: yes
+    name: elasticsearch
+    enabled: yes
+    state: restarted
 
 - name: download kibana
   get_url:
