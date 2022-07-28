@@ -4,13 +4,6 @@
     ansible.builtin.debug:
         msg: "Installing consul {{tags['consul']}}..."
 
-  - name: changed hostname to consul
-    become: yes
-    ansible.builtin.hostname:
-      name: consul
-    ignore_errors: true
-    when: tags['consul'] == 'server'
-
   - name: install dependencies on target ec2 instances
     apt:
       name:

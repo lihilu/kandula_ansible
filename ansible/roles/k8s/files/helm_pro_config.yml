@@ -2618,7 +2618,8 @@ prometheus:
     additionalScrapeConfigs:
       - job_name: consul_node_exoprter
         consul_sd_configs:
-        - server: consul.service.consul:8500
+        - server: finalproject.ops.club:8500
+          scheme: http
           datacenter: 'opsschool-lihi'
         relabel_configs:
         - source_labels: ['__address__']
@@ -2642,7 +2643,7 @@ prometheus:
             replacement: "$1:5000"
           - source_labels: [ "__meta_kubernetes_service_name" ]
             target_label: "kandula-service"
-            regex: "kandula-service(.*)"
+            regex: "kandula(.*)"
             action: keep
 
     # - job_name: kube-etcd
