@@ -535,11 +535,11 @@ notifiers:
         recipient: 'Lihi'
         uploadImage: true
         token: 'xz9MpX19Bbtx56qzjoRvBRbX4oxb' # legacy setting since Grafana v7.2 (stored non-encrypted)
-        url: https://hooks.slack.com/services/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
+        url: https://hooks.slack.com/services/T031S9F2X0V/BM6K2GAX/MXvRHb5A829CEjgoXFJBZ0Hb
     # Secure settings that will be encrypted in the database (supported since Grafana v7.2). See `Supported Settings` section for secure settings supported for each notifier.
       secure_settings:
-        token: 'z9MpX19Bbtx56qzjoRvBRbX4'
-        url: https://hooks.slack.com/services/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
+        token: 'z9MpX19BbRvBRbX4'
+        url: https://hooks.slack.com/services/T031S9F2X0V/B6K2GAX/MXvRHb5A829CEjgoXFJBZ0Hb
 
     delete_notifiers:
       - name: notification-channel-1
