@@ -2632,7 +2632,7 @@ prometheus:
           regex: "9100"
           action: 'keep'
           target_label: '__meta_consul_service_port'
-          
+
       - job_name: 'kandula_metrics'
         kubernetes_sd_configs:
           - role: endpoints
@@ -2642,14 +2642,87 @@ prometheus:
             regex: "(.):(.)"
             replacement: "$1:5000"
           - source_labels: [ "__meta_kubernetes_service_name" ]
-            target_label: "kandula-service"
-            regex: "kandula(.*)"
+            target_label: "kandula*"
+            regex: "kandula*"
             action: keep
 
-    # - job_name: kube-etcd
-    #   kubernetes_sd_configs:
-    #     - role: node
-    #   scheme: https
+      - job_name: "consul_metrics"
+        consul_sd_configs:
+        - server: finalproject.ops.club:8500
+          scheme: http
+          datacenter: 'opsschool-lihi'
+          services:
+              - "consul"
+        relabel_configs:
+          - source_labels: ["__address__"]
+            target_label: "__address__"
+            regex: "(.*):(.*)"
+            replacement: "$1:8500"
+        metrics_path: "/v1/agent/metrics"
+        params:
+          format: ["prometheus"]
+
+
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: endpoints
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_endpoints_name]
+          regex: 'node-exporter'
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_node_name]
+          action: replace
+          target_label: node
+
+      - job_name: 'kubernetes-apiservers'
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: default;kubernetes;https
+
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['prometheus-community-kube-state-metrics.monitoring.svc.cluster.local:8080']
+
+      - job_name: 'kubernetes-service-endpoints'
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+          action: replace
+          target_label: __scheme__
+          regex: (https?)
+        - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+          action: replace
+          target_label: __address__
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: kubernetes_name
+        - source_labels: [__meta_kubernetes_namespace]
+          regex: "kandula"
+          action: drop
+
+
     #   tls_config:
     #     ca_file:   /etc/prometheus/secrets/etcd-client-cert/etcd-ca
     #     cert_file: /etc/prometheus/secrets/etcd-client-cert/etcd-client

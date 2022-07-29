@@ -487,7 +487,7 @@ datasources:
     datasources:
     - name: Prometheus
       type: prometheus
-      url: prometheus-community-kube-prometheus.monitoring.svc.cluster.local
+      url: http://kube_pro.ops.club:9090
       access: proxy
       isDefault: true
     - name: CloudWatch
@@ -521,21 +521,10 @@ datasources:
 notifiers:
   notifiers.yaml:
     notifiers:
-    - name: email-notifier
-      type: email
-      uid: bR3WoU37zz
-      either:
-      org_id: 1
-#      # or
-#      org_name: Main Org.
-      is_default: true
-      settings:
-        addresses: lihi.reisman@gmail.com
-
-    - name: slack-notifier
+    - name: notification-channel-1
       type: slack
-      uid: KKVoA8q7k
-      org_id: 2
+      uid: notifier1
+      org_name: Main Org.
       is_default: true
       send_reminder: true
       frequency: 1h
@@ -543,33 +532,38 @@ notifiers:
     # See `Supported Settings` section for settings supported for each
     # alert notification type.
       settings:
-        recipient: '#notifications'
+        recipient: 'Lihi'
         uploadImage: true
-        token: 'H6qRrEH6MPnuJfDqCyuzknLi' # legacy setting since Grafana v7.2 (stored non-encrypted)
-      url: https://slack.com # legacy setting since Grafana v7.2 (stored non-encrypted)
+        token: 'xz9MpX19Bbtx56qzjoRvBRbX4oxb' # legacy setting since Grafana v7.2 (stored non-encrypted)
+        url: https://hooks.slack.com/services/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
     # Secure settings that will be encrypted in the database (supported since Grafana v7.2). See `Supported Settings` section for secure settings supported for each notifier.
-    secure_settings:
-      token: 'xoxb'
-      url: https://slack.com
-#    delete_notifiers:
+      secure_settings:
+        token: 'z9MpX19Bbtx56qzjoRvBRbX4'
+        url: https://hooks.slack.com/services/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
+
+    delete_notifiers:
+      - name: notification-channel-1
+        uid: notifier1
+        org_name: Main Org.
+
 
 ## Configure grafana dashboard providers
 ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
 ##
 ## `path` must be /var/lib/grafana/dashboards/<provider_name>
 ##
-dashboardProviders: {}
-#  dashboardproviders.yaml:
-#    apiVersion: 1
-#    providers:
-#    - name: 'default'
-#      orgId: 1
-#      folder: ''
-#      type: file
-#      disableDeletion: false
-#      editable: true
-#      options:
-#        path: /var/lib/grafana/dashboards/default
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
 
 ## Configure grafana dashboard to import
 ## NOTE: To use dashboards you must also enable/configure dashboardProviders
@@ -577,9 +571,27 @@ dashboardProviders: {}
 ##
 ## dashboards per provider, use provider name as key.
 ##
-dashboards: {}
-  # default:
-  #   some-dashboard:
+dashboards:
+  default:
+    kubernetes-apiserver:
+      gnetId: 12006
+      revision: 1
+      datasource: Prometheus
+    node-exporter:
+      gnetId: 1860
+      version: 27
+      datasource: Prometheus
+      node-exporter-full:
+        url: https://grafana.com/api/dashboards/1860/revisions/27/download
+    monitors-Kubernetes:
+      gnetId: 3119
+      version: 27
+      datasource: Prometheus
+      kubernetes-cluster-monitoring-via-prometheus:
+        url: https://grafana.com/api/dashboards/3119/revisions/2/download
+
+
+  #  some-dashboard:
   #     json: |
   #       $RAW_JSON
   #   custom-dashboard:
