@@ -57,7 +57,7 @@ defaultRules:
     nodeExporterAlerting: true
     nodeExporterRecording: true
     prometheus: true
-    prometheusOperator: true
+    prometheusOperator: false
 
   ## Reduce app namespace alert scope
   appNamespacesTarget: ".*"
@@ -699,7 +699,7 @@ alertmanager:
 ## Using default values from https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
 ##
 grafana:
-  enabled: true
+  enabled: false
   namespaceOverride: ""
 
   ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
@@ -2640,9 +2640,9 @@ prometheus:
           - source_labels: [ '_address_' ]
             target_label: '_address_'
             regex: "(.):(.)"
-            replacement: "$1:5000"
-          - source_labels: [ "__meta_kubernetes_service_name" ]
-            target_label: "kandula*"
+            replacement: "$1:9100"
+          - source_labels: [ "__meta_kubernetes_namespace" ]
+            target_label: "kandula"
             regex: "kandula*"
             action: keep
 
@@ -2722,45 +2722,12 @@ prometheus:
           regex: "kandula"
           action: drop
 
-
-    #   tls_config:
-    #     ca_file:   /etc/prometheus/secrets/etcd-client-cert/etcd-ca
-    #     cert_file: /etc/prometheus/secrets/etcd-client-cert/etcd-client
-    #     key_file:  /etc/prometheus/secrets/etcd-client-cert/etcd-client-key
-    #   relabel_configs:
-    #   - action: labelmap
-    #     regex: __meta_kubernetes_node_label_(.+)
-    #   - source_labels: [__address__]
-    #     action: replace
-    #     targetLabel: __address__
-    #     regex: ([^:;]+):(\d+)
-    #     replacement: ${1}:2379
-    #   - source_labels: [__meta_kubernetes_node_name]
-    #     action: keep
-    #     regex: .*mst.*
-    #   - source_labels: [__meta_kubernetes_node_name]
-    #     action: replace
-    #     targetLabel: node
-    #     regex: (.*)
-    #     replacement: ${1}
-    #   metric_relabel_configs:
-    #   - regex: (kubernetes_io_hostname|failure_domain_beta_kubernetes_io_region|beta_kubernetes_io_os|beta_kubernetes_io_arch|beta_kubernetes_io_instance_type|failure_domain_beta_kubernetes_io_zone)
-    #     action: labeldrop
-    #
-    ## If scrape config contains a repetitive section, you may want to use a template.
-    ## In the following example, you can see how to define `gce_sd_configs` for multiple zones
-    # additionalScrapeConfigs: |
-    #  - job_name: "node-exporter"
-    #    gce_sd_configs:
-    #    {{range $zone := .Values.gcp_zones}}
-    #    - project: "project1"
-    #      zone: "{{$zone}}"
-    #      port: 9100
-    #    {{end}}
-    #    relabel_configs:
-    #    ...
-
-
+      - job_name: Kube_Grafana
+        scrape_interval: 5s
+        static_configs:
+          - targets: ['kube_graf.ops.club']
+        metrics_path: /metrics
+        scheme: http
     ## If additional scrape configurations are already deployed in a single secret file you can use this section.
     ## Expected values are the secret name and key
     ## Cannot be used with additionalScrapeConfigs

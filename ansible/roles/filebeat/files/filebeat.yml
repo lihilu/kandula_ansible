@@ -2,11 +2,29 @@ filebeat.inputs:
   - type: log
     enabled: false
     paths:
-      - /var/log/auth.log
+      - "/var/log/containers/*.log"
+      - "/var/lib/docker/containers/*/*.log"
+      - "/var/log/auth.log"
+
+filebeat.autodiscover:
+  providers:
+  - type: docker
+    templates:
+    - condition:
+        contains:
+          docker.container.image: ".*"
+      config:
+        - module: nginx
+          access:
+            input:
+              type: continer
+              paths:
+                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+
 filebeat.modules:
   - module: system
     syslog:
-      enabled: true
+      enabled: false
     auth:
       enabled: true
 filebeat.config.modules:
