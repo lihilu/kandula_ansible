@@ -2644,7 +2644,7 @@ prometheus:
           - source_labels: [ "__meta_kubernetes_namespace" ]
             target_label: "kandula"
             regex: "kandula*"
-            action: keep
+            #action: keep
 
       - job_name: "consul_metrics"
         consul_sd_configs:
