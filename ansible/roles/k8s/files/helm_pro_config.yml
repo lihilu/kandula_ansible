@@ -2641,10 +2641,10 @@ prometheus:
             target_label: '_address_'
             regex: "(.):(.)"
             replacement: "$1:9100"
-          - source_labels: [ "__meta_kubernetes_namespace" ]
+          - source_labels: [ "__meta_kubernetes_service_name" ]
             target_label: "kandula"
-            regex: "kandula*"
-            #action: keep
+            regex: "kandulalb*"
+            action: keep
 
       - job_name: "consul_metrics"
         consul_sd_configs:
